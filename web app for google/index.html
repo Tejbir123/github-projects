@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Truth or Dare - Multi-Player Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4a7dd9 0%, #2e5cb8 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .phone-frame {
+            background: #000;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 420px;
+            min-height: 700px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 25px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .screen {
+            background: linear-gradient(135deg, #4a7dd9 0%, #2e5cb8 100%);
+            border-radius: 35px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 60px 30px 30px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Page Styles */
+        .page {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Login Page */
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-grow: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin: 20px 0;
+        }
+
+        .login-logo {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .auth-section {
+            width: 100%;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .auth-section.hidden {
+            display: none;
+        }
+
+        .btn-secondary {
+            background: rgba(74, 125, 217, 0.1);
+            color: #4a7dd9;
+            border: 2px solid #4a7dd9;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(74, 125, 217, 0.2);
+        }
+
+        /* Home Page */
+        .home-content {
+            text-align: center;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            flex-grow: 1;
+        }
+
+        .home-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .home-content p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            width: 100%;
+        }
+
+        input[type="number"]::placeholder,
+        input[type="text"]::placeholder {
+            color: #999;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #4a7dd9;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            align-self: flex-start;
+            padding: 10px 20px;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Names Input Page */
+        .names-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .name-input-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .name-input-item label {
+            color: white;
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        .name-input-item input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        /* Wheel Page */
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex-grow: 1;
+        }
+
+        .wheel {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #ff6b6b, #4ecdc4, #45b7d1, #f7dc6f, #bb8fce, #85c1e2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: spin 3s linear infinite;
+        }
+
+        .wheel.stopped {
+            animation: none;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .wheel-center {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4a7dd9;
+            z-index: 10;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            width: 30px;
+            height: 30px;
+            background: white;
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            z-index: 11;
+        }
+
+        .spin-btn {
+            padding: 15px 40px;
+            background: white;
+            color: #4a7dd9;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .selected-name {
+            color: white;
+            font-size: 1.3em;
+            font-weight: 600;
+            text-align: center;
+            min-height: 30px;
+        }
+
+        /* Choice Page */
+        .choice-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .selected-player {
+            color: white;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .choice-btn {
+            padding: 20px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .truth-btn {
+            background: white;
+            color: #4a7dd9;
+        }
+
+        .truth-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .dare-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .dare-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Result Page */
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .result-label {
+            color: white;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .result-text {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.4;
+        }
+
+        .result-buttons {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            flex: 1;
+            padding: 12px 20px;
+            background: white;
+            color: #4a7dd9;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-home {
+            flex: 1;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .phone-frame {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>Discover all<br>secrets</h1>
+            <p>Truth or Dare Game</p>
+        </div>
+
+        <div class="phone-frame">
+            <div class="screen">
+                <!-- Login Page -->
+                <div class="page active" id="loginPage">
+                    <div class="login-container">
+                        <div class="login-logo">📱</div>
+                        <h2 style="color: #333; margin-bottom: 30px; text-align: center;">Truth or Dare</h2>
+                        
+                        <!-- Phone Number Input -->
+                        <div id="phoneSection" class="auth-section">
+                            <p style="color: #999; text-align: center; margin-bottom: 20px; font-size: 0.95em;">Enter your phone number to continue</p>
+                            <div class="input-group">
+                                <input type="tel" id="phoneInput" placeholder="Your phone number" maxlength="10" inputmode="numeric" onkeypress="filterNumber(event)">
+                                <button class="btn btn-primary" onclick="requestOTP()" style="width: 100%;">Send OTP</button>
+                            </div>
+                        </div>
+
+                        <!-- OTP Input -->
+                        <div id="otpSection" class="auth-section hidden">
+                            <p style="color: #999; text-align: center; margin-bottom: 20px; font-size: 0.95em;" id="otpMessage">Enter OTP sent to your number</p>
+                            <div class="input-group">
+                                <input type="text" id="otpInput" placeholder="Enter 4-digit OTP" maxlength="4" inputmode="numeric" onkeypress="filterNumber(event)">
+                                <button class="btn btn-primary" onclick="verifyOTP()" style="width: 100%;">Verify & Continue</button>
+                                <button class="btn-back" onclick="backToPhone()" style="width: 100%; margin-top: 10px;">← Change Number</button>
+                            </div>
+                        </div>
+
+                        <!-- Additional Options -->
+                        <div style="margin-top: 30px;">
+                            <button class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;" onclick="skipLogin()">Play as Guest</button>
+                            <p style="text-align: center; color: #999; font-size: 0.9em; margin-top: 20px;">
+                                By continuing, you agree to our Terms
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Home Page -->
+                <div class="page" id="homePage">
+                    <div class="home-content">
+                        <h2 id="userGreeting">🎮 Truth or Dare</h2>
+                        <p>Let's Play!</p>
+                        <div class="input-group">
+                            <input type="number" id="playerCountInput" placeholder="How many players?" min="2" max="10" value="2">
+                            <button class="btn btn-primary" onclick="goToNamesPage()">Next</button>
+                        </div>
+                        <button class="btn-back" onclick="logout()" style="margin-top: 20px; width: 100%; align-self: center;">Logout</button>
+                    </div>
+                </div>
+
+                <!-- Names Page -->
+                <div class="page" id="namesPage">
+                    <button class="btn btn-back" onclick="goHome()">← Back</button>
+                    <h2 style="color: white; margin-bottom: 20px; text-align: center;">Enter Names</h2>
+                    <div class="names-grid" id="namesGrid"></div>
+                    <button class="btn btn-primary" onclick="goToWheelPage()" style="align-self: center; width: 100%;">Start Game</button>
+                </div>
+
+                <!-- Wheel Page -->
+                <div class="page" id="wheelPage">
+                    <button class="btn btn-back" onclick="goToNamesPage()">← Back</button>
+                    <div class="wheel-container">
+                        <div class="selected-name" id="selectedName">Spin the wheel!</div>
+                        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+                            <div class="wheel-pointer"></div>
+                            <div class="wheel" id="spinWheel">
+                                <div class="wheel-center" id="wheelCenter">🎲</div>
+                            </div>
+                        </div>
+                        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
+                    </div>
+                </div>
+
+                <!-- Choice Page -->
+                <div class="page" id="choicePage">
+                    <div class="choice-container">
+                        <div class="selected-player" id="selectedPlayer"></div>
+                        <p style="color: white; font-size: 1.2em;">Choose one:</p>
+                        <div class="choice-buttons">
+                            <button class="choice-btn truth-btn" onclick="selectTruth()">📖 Truth</button>
+                            <button class="choice-btn dare-btn" onclick="selectDare()">⚡ Dare</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Page -->
+                <div class="page" id="resultPage">
+                    <div class="result-container">
+                        <div class="result-label" id="resultType"></div>
+                        <div class="result-card">
+                            <div class="result-text" id="resultText"></div>
+                        </div>
+                        <div class="result-buttons">
+                            <button class="btn-next" onclick="goToWheelPage()">Next Player</button>
+                            <button class="btn-home" onclick="goHome()">Home</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game Data
+        const truths = [
+            "What is your biggest fantasy?",
+            "What is your biggest fear?",
+            "Have you ever lied to your friends?",
+            "What's your most embarrassing moment?",
+            "Do you have a crush on anyone?",
+            "What's the worst thing you've ever done?",
+            "Have you ever cheated on a test?",
+            "What's your guilty pleasure?",
+            "Do you have any secret talents?",
+            "What's the meanest thing you've said about someone?",
+            "Have you ever broken a promise?",
+            "What's your biggest insecurity?",
+            "Have you ever stolen anything?",
+            "What's the most awkward thing you've done?",
+            "Who do you secretly hate?",
+            "What's your most irrational fear?",
+            "Have you ever cheated in a relationship?",
+            "What's the most you've ever spent on something silly?",
+            "Do you have an ex you still think about?",
+            "What's the most embarrassing text you've sent?"
+        ];
+
+        const dares = [
+            "Do 20 pushups",
+            "Sing a song out loud",
+            "Do your best impression of someone",
+            "Dance like nobody's watching",
+            "Call a friend and confess something funny",
+            "Eat something spicy",
+            "Do a handstand",
+            "Speak in an accent for the next round",
+            "Do 10 jumping jacks",
+            "Tell a bad joke",
+            "Pretend to be a famous celebrity",
+            "Do the chicken dance",
+            "Walk backwards for 1 minute",
+            "Compliment everyone here",
+            "Make a funny face for 30 seconds",
+            "Send a funny message to a random contact",
+            "Do your best runway walk",
+            "Touch your nose with your tongue",
+            "Juggle 3 items",
+            "Do a silly dance for 1 minute"
+        ];
+
+        // Game State
+        let gameState = {
+            playerCount: 0,
+            players: [],
+            currentPlayer: null,
+            currentChoice: null,
+            spinning: false,
+            userPhone: null,
+            userName: null,
+            isLoggedIn: false
+        };
+
+        // LOGIN FUNCTIONS
+        function filterNumber(event) {
+            if (!/[0-9]/.test(event.key)) {
+                event.preventDefault();
+            }
+        }
+
+        function requestOTP() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            
+            if (!phone || phone.length < 10) {
+                alert('Please enter a valid phone number (10 digits)');
+                return;
+            }
+
+            // Simulate OTP sending (in real app, this would go to backend)
+            gameState.userPhone = phone;
+            
+            // Show OTP section
+            document.getElementById('phoneSection').classList.add('hidden');
+            document.getElementById('otpSection').classList.remove('hidden');
+            document.getElementById('otpMessage').textContent = `Enter OTP sent to +91${phone}`;
+            document.getElementById('otpInput').focus();
+        }
+
+        function backToPhone() {
+            document.getElementById('otpSection').classList.add('hidden');
+            document.getElementById('phoneSection').classList.remove('hidden');
+            document.getElementById('phoneInput').focus();
+        }
+
+        function verifyOTP() {
+            const otp = document.getElementById('otpInput').value.trim();
+            
+            if (!otp || otp.length !== 4) {
+                alert('Please enter a valid 4-digit OTP');
+                return;
+            }
+
+            // Simulate OTP verification (in real app, this would go to backend)
+            if (otp === '1234') {
+                // Demo OTP is 1234
+                gameState.isLoggedIn = true;
+                gameState.userName = `User ${gameState.userPhone.slice(-4)}`;
+                goToHome();
+            } else {
+                alert('Invalid OTP. Try again! (Demo OTP: 1234)');
+            }
+        }
+
+        function skipLogin() {
+            gameState.isLoggedIn = true;
+            gameState.userName = `Guest`;
+            goToHome();
+        }
+
+        function logout() {
+            gameState.isLoggedIn = false;
+            gameState.userPhone = null;
+            gameState.userName = null;
+            document.getElementById('phoneInput').value = '';
+            document.getElementById('otpInput').value = '';
+            document.getElementById('phoneSection').classList.remove('hidden');
+            document.getElementById('otpSection').classList.add('hidden');
+            showPage('loginPage');
+        }
+
+        // Page Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function goHome() {
+            document.getElementById('userGreeting').textContent = `👋 Welcome, ${gameState.userName}!`;
+            showPage('homePage');
+        }
+
+        function goToNamesPage() {
+            gameState.playerCount = parseInt(document.getElementById('playerCountInput').value);
+            if (gameState.playerCount < 2 || gameState.playerCount > 10) {
+                alert('Please enter a number between 2 and 10');
+                return;
+            }
+            gameState.players = Array(gameState.playerCount).fill('');
+            generateNameInputs();
+            showPage('namesPage');
+        }
+
+        // NAMES PAGE
+        function generateNameInputs() {
+            const namesGrid = document.getElementById('namesGrid');
+            namesGrid.innerHTML = '';
+            for (let i = 0; i < gameState.playerCount; i++) {
+                const div = document.createElement('div');
+                div.className = 'name-input-item';
+                div.innerHTML = `
+                    <label>Player ${i + 1}:</label>
+                    <input type="text" id="player${i}" placeholder="Enter name" onchange="updatePlayerName(${i}, this.value)">
+                `;
+                namesGrid.appendChild(div);
+            }
+        }
+
+        function updatePlayerName(index, name) {
+            gameState.players[index] = name.trim() || `Player ${index + 1}`;
+        }
+
+        function goToWheelPage() {
+            // Ensure all names are set
+            for (let i = 0; i < gameState.playerCount; i++) {
+                const input = document.getElementById(`player${i}`);
+                if (!input) return;
+                gameState.players[i] = input.value.trim() || `Player ${i + 1}`;
+            }
+            
+            // Reset wheel
+            const wheel = document.getElementById('spinWheel');
+            wheel.classList.remove('stopped');
+            document.getElementById('spinBtn').disabled = false;
+            document.getElementById('selectedName').textContent = 'Spin the wheel!';
+            
+            showPage('wheelPage');
+        }
+
+        // WHEEL PAGE
+        function spinWheel() {
+            if (gameState.spinning) return;
+            
+            gameState.spinning = true;
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+            
+            const wheel = document.getElementById('spinWheel');
+            wheel.classList.remove('stopped');
+            
+            // Random spin duration
+            const spinDuration = 3 + Math.random() * 2;
+            const randomRotation = Math.random() * 360 + 720;
+            
+            wheel.style.transition = `transform ${spinDuration}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+            wheel.style.transform = `rotate(${randomRotation}deg)`;
+            
+            setTimeout(() => {
+                wheel.classList.add('stopped');
+                const selectedIndex = Math.floor((randomRotation % 360) / (360 / gameState.playerCount));
+                const selected = gameState.players[selectedIndex];
+                gameState.currentPlayer = selected;
+                
+                document.getElementById('selectedName').textContent = `${selected}'s turn!`;
+                gameState.spinning = false;
+                spinBtn.disabled = false;
+                
+                // Auto go to choice page after 2 seconds
+                setTimeout(() => {
+                    goToChoicePage();
+                }, 2000);
+            }, spinDuration * 1000);
+        }
+
+        // CHOICE PAGE
+        function goToChoicePage() {
+            document.getElementById('selectedPlayer').textContent = `${gameState.currentPlayer}'s Turn`;
+            showPage('choicePage');
+        }
+
+        function selectTruth() {
+            gameState.currentChoice = 'truth';
+            displayResult();
+        }
+
+        function selectDare() {
+            gameState.currentChoice = 'dare';
+            displayResult();
+        }
+
+        // RESULT PAGE
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function displayResult() {
+            let result, label;
+            
+            if (gameState.currentChoice === 'truth') {
+                result = getRandomItem(truths);
+                label = '📖 Your Truth:';
+            } else {
+                result = getRandomItem(dares);
+                label = '⚡ Your Dare:';
+            }
+            
+            document.getElementById('resultType').textContent = label;
+            document.getElementById('resultText').textContent = result;
+            showPage('resultPage');
+        }
+    </script>
+</body>
+</html>

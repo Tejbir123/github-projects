@@ -1,0 +1,13 @@
+{
+  "name": "web-app-for-google",
+  "version": "1.0.0",
+  "description": "A web app for Google with command-line interface",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": ["web", "app", "google"],
+  "author": "",
+  "license": "ISC"
+}
